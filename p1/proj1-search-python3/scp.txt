@@ -1,0 +1,5 @@
+Mac
+scp -r ../proj1-search-python3 home@192.168.0.180:/Users/home/Documents/USC/USCSpring2019/CSCE580/Projects/p1/
+LinuxBox
+scp -r ../proj1-search-python3 user1@192.168.0.141:/home/user1/Documents/USC/USCSpring2019/CSCE580/p1/
+
