@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import math
 
 from game import Agent
 
@@ -148,40 +149,53 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        def maxvalue(gameState, depth, numghosts):
-            if gameState.isWin() or gameState.isLose() or depth == 0:
-                return self.evaluationFunction(gameState)
-            v = -(float("inf"))
-            legalActions = gameState.getLegalActions(0)
-            for action in legalActions:
-                v = max(v, minvalue(gameState.generateSuccessor(0, action), depth - 1, 1, numghosts))
-            return v
-        
-        def minvalue(gameState, depth, agentindex, numghosts):
-            "numghosts = len(gameState.getGhostStates())"
-            if gameState.isWin() or gameState.isLose() or depth == 0:
-                return self.evaluationFunction(gameState)
-            v = float("inf")
-            legalActions = gameState.getLegalActions(agentindex)
-            if agentindex == numghosts:
-                for action in legalActions:
-                    v = min(v, maxvalue(gameState.generateSuccessor(agentindex, action), depth - 1, numghosts))
-            else:
-                for action in legalActions:
-                    v = min(v, minvalue(gameState.generateSuccessor(agentindex, action), depth, agentindex + 1, numghosts))
-            return v
-        legalActions = gameState.getLegalActions()
-        numghosts = gameState.getNumAgents() - 1
-        bestaction = Directions.STOP
-        score = -(float("inf"))
-        for action in legalActions:
-            nextState = gameState.generateSuccessor(0, action)
-            prevscore = score
-            score = max(score, minvalue(nextState, self.depth, 1, numghosts))
-            if score > prevscore:
-                bestaction = action
-        return bestaction
+        currentAgentIndex = 0
+        curDepth = 0
+        if currentAgentIndex >= gameState.getNumAgents():
+            currentAgentIndex = 0
+            curDepth += 1
 
+        if curDepth == self.depth:
+            return self.evaluationFunction(gameState)
+
+        if currentAgentIndex == 0:
+            v = ("unknown", -1*float("inf"))
+        
+            if not gameState.getLegalActions(currentAgentIndex):
+                return self.evaluationFunction(gameState)
+
+            for action in gameState.getLegalActions(currentAgentIndex):
+                if action == "Stop":
+                    continue
+                
+                retVal = self.value(gameState.generateSuccessor(currentAgentIndex, action), currentAgentIndex + 1, curDepth)
+                if type(retVal) is tuple:
+                    retVal = retVal[1] 
+
+                vNew = max(v[1], retVal)
+
+                if vNew is not v[1]:
+                    v = (action, vNew)
+            return v[0]
+        else:
+            v = ("unknown", float("inf"))
+        
+            if not gameState.getLegalActions(currentAgentIndex):
+                return self.evaluationFunction(gameState)
+
+            for action in gameState.getLegalActions(currentAgentIndex):
+                if action == "Stop":
+                    continue
+                
+                retVal = self.value(gameState.generateSuccessor(currentAgentIndex, action), currentAgentIndex + 1, curDepth)
+                if type(retVal) is tuple:
+                    retVal = retVal[1] 
+
+                vNew = min(v[1], retVal)
+
+                if vNew is not v[1]:
+                    v = (action, vNew)
+            return v[0]
         util.raiseNotDefined()
 
 
