@@ -74,21 +74,20 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        distance = []
+        foodCost = 6969696969696969
         foodList = currentGameState.getFood().asList()
-        state = successorGameState.getPacmanPosition()
+        pacmanState = successorGameState.getPacmanPosition()
 
         for ghostState in newGhostStates:
-            if ghostState.getPosition() == state:
+            if ghostState.getPosition() == pacmanState:
                 return -696969696969
-
         for food in foodList:
-            x = -1*abs(food[0] - state[0])
-            y = -1*abs(food[1] - state[1])
-            distance.append(x+y) 
+            currCost = abs(food[0] - pacmanState[0])+abs(food[1] - pacmanState[1])
+            if currCost < foodCost:foodCost = currCost
 
-        return max(distance)
+        return -foodCost
         return successorGameState.getScore()
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -149,6 +148,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        def maxvalue(gameState, depth, numghosts):
+            if gameState.isWin() or gameState.isLose() or depth == 0:
+                return self.evaluationFunction(gameState)
+            v = -(float("inf"))
+            legalActions = gameState.getLegalActions(0)
+            for action in legalActions:
+                v = max(v, minvalue(gameState.generateSuccessor(0, action), depth - 1, 1, numghosts))
+            return v
+        
+        def minvalue(gameState, depth, agentindex, numghosts):
+            "numghosts = len(gameState.getGhostStates())"
+            if gameState.isWin() or gameState.isLose() or depth == 0:
+                return self.evaluationFunction(gameState)
+            v = float("inf")
+            legalActions = gameState.getLegalActions(agentindex)
+            if agentindex == numghosts:
+                for action in legalActions:
+                    v = min(v, maxvalue(gameState.generateSuccessor(agentindex, action), depth - 1, numghosts))
+            else:
+                for action in legalActions:
+                    v = min(v, minvalue(gameState.generateSuccessor(agentindex, action), depth, agentindex + 1, numghosts))
+            return v
+        legalActions = gameState.getLegalActions()
+        numghosts = gameState.getNumAgents() - 1
+        bestaction = Directions.STOP
+        score = -(float("inf"))
+        for action in legalActions:
+            nextState = gameState.generateSuccessor(0, action)
+            prevscore = score
+            score = max(score, minvalue(nextState, self.depth, 1, numghosts))
+            if score > prevscore:
+                bestaction = action
+        return bestaction
 
         util.raiseNotDefined()
 
