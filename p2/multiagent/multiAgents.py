@@ -150,7 +150,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         currentAgentIndex = 0
-        curDepth = 0
+        curDepth = 1
         if currentAgentIndex >= gameState.getNumAgents():
             currentAgentIndex = 0
             curDepth += 1
