@@ -171,7 +171,7 @@ PSEUDOCODE
 15         return bestValue
 '''
         s =  self.minimax(gameState, self.depth * 2, 0)[1]
-        print(s)
+        #print(s)
         return s
         util.raiseNotDefined()
     def minimax(self, gameState, depth, agent = 0, isAgent = True):
@@ -184,9 +184,9 @@ PSEUDOCODE
 
         if isAgent:
             scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 1, False)[0] for action in actions]
-            bestScore = max(scores)
-            bestIndices = [i for i in range(len(scores)) if scores[i] == bestScore]
-            return bestScore, actions[random.choice(bestIndices)]
+            bestValue = max(scores)
+            bestIndices = [i for i in range(len(scores)) if scores[i] == bestValue]
+            return bestValue, actions[bestIndices[0]]
 
 
         else:
@@ -195,9 +195,9 @@ PSEUDOCODE
                 scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 0, True)[0] for action in actions]
             else:
                 scores = [self.minimax(gameState.generateSuccessor(agent, action), depth, agent + 1, False)[0] for action in actions]
-            bestScore = min(scores)
-            bestIndices = [i for i in range(len(scores)) if scores[i] == bestScore]
-            return bestScore, actions[random.choice(bestIndices)]
+            bestValue = min(scores)
+            bestIndices = [i for i in range(len(scores)) if scores[i] == bestValue]
+            return bestValue, actions[bestIndices[0]]
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
