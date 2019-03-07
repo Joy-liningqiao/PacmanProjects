@@ -149,54 +149,55 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        currentAgentIndex = 0
-        curDepth = 0
-        if currentAgentIndex >= gameState.getNumAgents():
-            currentAgentIndex = 0
-            curDepth += 1
+        '''
+PSEUDOCODE
 
-        if curDepth == self.depth:
-            return self.evaluationFunction(gameState)
+01 function minimax(node, depth, maximizingPlayer)
+02     if depth = 0 or node is a terminal node
+03         return the heuristic value of node
 
-        if currentAgentIndex == 0:
-            v = ("unknown", -1*float("inf"))
-        
-            if not gameState.getLegalActions(currentAgentIndex):
-                return self.evaluationFunction(gameState)
+04     if maximizingPlayer
+05         bestValue := −∞
+06         for each child of node
+07             v := minimax(child, depth − 1, FALSE)
+08             bestValue := max(bestValue, v)
+09         return bestValue
 
-            for action in gameState.getLegalActions(currentAgentIndex):
-                if action == "Stop":
-                    continue
-                
-                retVal = self.value(gameState.generateSuccessor(currentAgentIndex, action), currentAgentIndex + 1, curDepth)
-                if type(retVal) is tuple:
-                    retVal = retVal[1] 
-
-                vNew = max(v[1], retVal)
-
-                if vNew is not v[1]:
-                    v = (action, vNew)
-            return v[0]
-        else:
-            v = ("unknown", float("inf"))
-        
-            if not gameState.getLegalActions(currentAgentIndex):
-                return self.evaluationFunction(gameState)
-
-            for action in gameState.getLegalActions(currentAgentIndex):
-                if action == "Stop":
-                    continue
-                
-                retVal = self.value(gameState.generateSuccessor(currentAgentIndex, action), currentAgentIndex + 1, curDepth)
-                if type(retVal) is tuple:
-                    retVal = retVal[1] 
-
-                vNew = min(v[1], retVal)
-
-                if vNew is not v[1]:
-                    v = (action, vNew)
-            return v[0]
+10     else    (* minimizing player *)
+11         bestValue := +∞
+12         for each child of node
+13             v := minimax(child, depth − 1, TRUE)
+14             bestValue := min(bestValue, v)
+15         return bestValue
+'''
+        s =  self.minimax(gameState, self.depth * 2, 0)[1]
+        print(s)
+        return s
         util.raiseNotDefined()
+    def minimax(self, gameState, depth, agent = 0, isAgent = True):
+        #getting all actions for the current state of agent
+        actions = gameState.getLegalActions(agent)
+#02     if depth = 0 or node is a terminal node
+        if depth == 0 or gameState.isWin() or gameState.isLose():
+#03         return the heuristic value of node           
+            return self.evaluationFunction(gameState), Directions.STOP
+
+        if isAgent:
+            scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 1, False)[0] for action in actions]
+            bestScore = max(scores)
+            bestIndices = [i for i in range(len(scores)) if scores[i] == bestScore]
+            return bestScore, actions[random.choice(bestIndices)]
+
+
+        else:
+            scores = []
+            if agent == gameState.getNumAgents() - 1: # last ghost
+                scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 0, True)[0] for action in actions]
+            else:
+                scores = [self.minimax(gameState.generateSuccessor(agent, action), depth, agent + 1, False)[0] for action in actions]
+            bestScore = min(scores)
+            bestIndices = [i for i in range(len(scores)) if scores[i] == bestScore]
+            return bestScore, actions[random.choice(bestIndices)]
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
