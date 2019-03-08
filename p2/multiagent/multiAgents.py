@@ -174,44 +174,61 @@ minimax(origin, depth, TRUE)
         #print(s)
         return costPath[1]
         util.raiseNotDefined()
-    #useign agentIndex int instead of boolean because more then 2 agents
+
+
+
+#useign agentIndex int instead of boolean because more then 2 agents
     def minimax(self, gameState, depth, agentIndex = 0):
-        #getting all actions for the current state of agent
+#getting all actions for the current state of agent
         actions = gameState.getLegalActions(agentIndex)
-        v = []
-#       if depth = 0 or node is a terminal node then
+#setting variables for the max value, min value, and the moves 
+#just initilized to baiscally dummy values
+        minValue = math.inf
+        maxValue = -math.inf
+        move = None
+#if depth = 0 or node is a terminal node then
         if depth == 0 or gameState.isWin() or gameState.isLose():
-#           return the heuristic value of node
+#return the heuristic value of node
             return self.evaluationFunction(gameState), Directions.STOP
 #if its pacman playing (max)
         if agentIndex == 0:
-            for options in actions:
-                v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth, 1)[0])
-            #print(v)
-            bestValue = max(v)
-            print(bestValue)
-            bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
-            print(bestIndices)
-            return bestValue, actions[bestIndices[0]]
+#check all actions
+            for i in range(len(actions)):
+#get max value and move associated
+                if self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, 1)[0] > maxValue:
+                    maxValue = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, 1)[0]
+                    move = actions[i]
+#return value and move
+            return (maxValue, move)
+
+
 
 #if its a ghost (min)
         else:
 #checks if the current agent is the same as the total amount of agents
 #this would mean that all of the ghosts have been accounted for
-            if agentIndex == gameState.getNumAgents() - 1:
+#THE TOTAL COUNT IS LENGTH NOT INCLUDING 0
+            if agentIndex+1 == gameState.getNumAgents():
                 #print(gameState.getNumAgents() )
-                for options in actions:
-                    v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth-1, 0)[0])
-                bestValue = min(v)
-                bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
-                return bestValue, actions[bestIndices[0]]
+                for i in range(len(actions)):
+#check all actions
+#get min value and move associated
+#ONLY CHANGE DEPTH ON THE FINAL GHOST
+                    if self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth-1, 0)[0] < minValue:
+                        minValue = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth-1, 0)[0]
+                        move = actions[i]
+#return value and move
+                return (minValue, move)
 #If not all of the ghosts gone through, just do it normally
             else:
-                for options in actions:
-                    v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth, agentIndex+1)[0])
-                bestValue = min(v)
-                bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
-                return bestValue, actions[bestIndices[0]]
+                for i in range(len(actions)):
+#check all actions
+#get min value and move associated
+                    if self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, agentIndex+1)[0] < minValue:
+                        minValue = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, agentIndex+1)[0]
+                        move = actions[i]
+#return value and move
+                return (minValue, move)
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
