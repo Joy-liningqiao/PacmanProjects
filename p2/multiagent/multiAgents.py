@@ -151,53 +151,67 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         '''
 PSEUDOCODE
+Source: https://en.wikipedia.org/wiki/Minimax
 
-01 function minimax(node, depth, maximizingPlayer)
-02     if depth = 0 or node is a terminal node
-03         return the heuristic value of node
+function minimax(node, depth, maximizingPlayer) is
+    if depth = 0 or node is a terminal node then
+        return the heuristic value of node
+    if maximizingPlayer then
+        value := −∞
+        for each child of node do
+            value := max(value, minimax(child, depth − 1, FALSE))
+        return value
+    else (* minimizing player *)
+        value := +∞
+        for each child of node do
+            value := min(value, minimax(child, depth − 1, TRUE))
+        return value
 
-04     if maximizingPlayer
-05         bestValue := −∞
-06         for each child of node
-07             v := minimax(child, depth − 1, FALSE)
-08             bestValue := max(bestValue, v)
-09         return bestValue
-
-10     else    (* minimizing player *)
-11         bestValue := +∞
-12         for each child of node
-13             v := minimax(child, depth − 1, TRUE)
-14             bestValue := min(bestValue, v)
-15         return bestValue
+(* Initial call *)
+minimax(origin, depth, TRUE)
 '''
-        s =  self.minimax(gameState, self.depth * 2, 0)[1]
+        costPath =  self.minimax(gameState, self.depth)
         #print(s)
-        return s
+        return costPath[1]
         util.raiseNotDefined()
-    def minimax(self, gameState, depth, agent = 0, isAgent = True):
+    #useign agentIndex int instead of boolean because more then 2 agents
+    def minimax(self, gameState, depth, agentIndex = 0):
         #getting all actions for the current state of agent
-        actions = gameState.getLegalActions(agent)
-#02     if depth = 0 or node is a terminal node
+        actions = gameState.getLegalActions(agentIndex)
+        v = []
+#       if depth = 0 or node is a terminal node then
         if depth == 0 or gameState.isWin() or gameState.isLose():
-#03         return the heuristic value of node           
+#           return the heuristic value of node
             return self.evaluationFunction(gameState), Directions.STOP
-
-        if isAgent:
-            scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 1, False)[0] for action in actions]
-            bestValue = max(scores)
-            bestIndices = [i for i in range(len(scores)) if scores[i] == bestValue]
+#if its pacman playing (max)
+        if agentIndex == 0:
+            for options in actions:
+                v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth, 1)[0])
+            #print(v)
+            bestValue = max(v)
+            print(bestValue)
+            bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
+            print(bestIndices)
             return bestValue, actions[bestIndices[0]]
 
-
+#if its a ghost (min)
         else:
-            scores = []
-            if agent == gameState.getNumAgents() - 1: # last ghost
-                scores = [self.minimax(gameState.generateSuccessor(agent, action), depth - 1, 0, True)[0] for action in actions]
+#checks if the current agent is the same as the total amount of agents
+#this would mean that all of the ghosts have been accounted for
+            if agentIndex == gameState.getNumAgents() - 1:
+                #print(gameState.getNumAgents() )
+                for options in actions:
+                    v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth-1, 0)[0])
+                bestValue = min(v)
+                bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
+                return bestValue, actions[bestIndices[0]]
+#If not all of the ghosts gone through, just do it normally
             else:
-                scores = [self.minimax(gameState.generateSuccessor(agent, action), depth, agent + 1, False)[0] for action in actions]
-            bestValue = min(scores)
-            bestIndices = [i for i in range(len(scores)) if scores[i] == bestValue]
-            return bestValue, actions[bestIndices[0]]
+                for options in actions:
+                    v.append(self.minimax(gameState.generateSuccessor(agentIndex, options), depth, agentIndex+1)[0])
+                bestValue = min(v)
+                bestIndices = [i for i in range(len(v)) if v[i] == bestValue]
+                return bestValue, actions[bestIndices[0]]
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
