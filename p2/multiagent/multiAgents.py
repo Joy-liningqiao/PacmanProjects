@@ -84,10 +84,11 @@ class ReflexAgent(Agent):
                 return -math.inf
         for food in foodList:
             currCost = abs(food[0] - pacmanState[0])+abs(food[1] - pacmanState[1])
-            if currCost < foodCost:foodCost = currCost
+            if currCost < foodCost:
+                foodCost = currCost
 
-        return foodCost
-        return successorGameState.getScore()
+        return -foodCost
+        #return successorGameState.getScore()
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -235,6 +236,32 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    '''pseudocode
+        source : https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+    function alphabeta(node, depth, α, β, maximizingPlayer) is
+    if depth = 0 or node is a terminal node then
+        return the heuristic value of node
+    if maximizingPlayer then
+        value := −∞
+        for each child of node do
+            value := max(value, alphabeta(child, depth − 1, α, β, FALSE))
+            α := max(α, value)
+            if α ≥ β then
+                break (* β cut-off *)
+        return value
+    else
+        value := +∞
+        for each child of node do
+            value := min(value, alphabeta(child, depth − 1, α, β, TRUE))
+            β := min(β, value)
+            if α ≥ β then
+                break (* α cut-off *)
+        return value
+        (* Initial call *)
+    alphabeta(origin, depth, −∞, +∞, TRUE)
+    '''
+
+
     def minimax(self, gameState, depth, agentIndex, a, b):
         actions = gameState.getLegalActions(agentIndex)
         #setting variables for the max value, min value, and the moves 
@@ -320,8 +347,80 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
+        '''
+        psudocode
+        source
+        https://pooyanjamshidi.github.io/csce580/lectures/CSCE580-lecture5--adversarial-search.pdf
+
+
+        def value(state):
+            if the state is a terminal state: return the state’s utility
+            if the next agent is MAX: return max-value(state)
+            if the next agent is EXP: return exp-value(state)
+        def max-value(state):
+            initialize v = -∞
+            for each successor of state:
+                v = max(v, value(successor))
+            return v
+        def exp-value(state):
+            initialize v = 0
+            for each successor of state:
+                p = probability(successor)
+                v += p * value(successor)
+            return v
+
+
+
+
+
+
+        '''
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        v = -math.inf
+        for action in gameState.getLegalActions(0):
+            temp = self.valueOfState(gameState.generateSuccessor(0, action),self.depth,1)
+            if temp > v:
+                v = temp
+                nextAction = action
+     
+        return nextAction
+
+    def valueOfState(self, gameState, depth, agentIndex):
+        if depth == 0:
+            return self.evaluationFunction(gameState)
+        if agentIndex == 0:
+            return self.maxV(gameState, depth, agentIndex)
+        else:
+            return self.expV(gameState, depth, agentIndex)
+
+
+
+    def maxV(self, gameState, depth, agentIndex):
+        v = -math.inf
+        actions = gameState.getLegalActions(agentIndex)
+        if len(actions) == 0:
+            return self.evaluationFunction(gameState)
+        for action in gameState.getLegalActions(agentIndex):
+            v = max(v, self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth, agentIndex+1))
+        return v
+
+
+
+
+
+    def expV(self, gameState, depth, agentIndex):
+        v = 0
+        actions = gameState.getLegalActions(agentIndex)
+        if len(actions) == 0:
+            return self.evaluationFunction(gameState)
+        for action in gameState.getLegalActions(agentIndex):
+            if agentIndex +1 == gameState.getNumAgents():
+                v += self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth-1, 0)
+            else:
+                v += self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth, agentIndex+1)
+        return v 
+
+
 
 def betterEvaluationFunction(currentGameState):
     """
