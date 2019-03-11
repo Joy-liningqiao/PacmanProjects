@@ -368,40 +368,39 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 p = probability(successor)
                 v += p * value(successor)
             return v
-
-
-
-
-
-
         '''
         "*** YOUR CODE HERE ***"
-        v = -math.inf
-        for action in gameState.getLegalActions(0):
-            temp = self.valueOfState(gameState.generateSuccessor(0, action),self.depth,1)
-            if temp > v:
-                v = temp
-                nextAction = action
-     
-        return nextAction
+        maxValue = -math.inf
+#iterate thoguh all moves and find most valuable
+        for actions in gameState.getLegalActions(0):
+            score = self.valueOfState(gameState.generateSuccessor(0, actions),self.depth,1)
+            if score > maxValue:
+                maxValue ,move = score,actions
+        return move
 
     def valueOfState(self, gameState, depth, agentIndex):
+#if the state is a terminal state: return the state’s utility
         if depth == 0:
             return self.evaluationFunction(gameState)
+#if the next agent is MAX: return max-value(state)
         if agentIndex == 0:
             return self.maxV(gameState, depth, agentIndex)
+#if the next agent is EXP: return exp-value(state)
         else:
             return self.expV(gameState, depth, agentIndex)
 
 
 
     def maxV(self, gameState, depth, agentIndex):
+#initialize v = -∞
         v = -math.inf
         actions = gameState.getLegalActions(agentIndex)
         if len(actions) == 0:
             return self.evaluationFunction(gameState)
-        for action in gameState.getLegalActions(agentIndex):
-            v = max(v, self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth, agentIndex+1))
+#for each successor of state:
+        for actions in gameState.getLegalActions(agentIndex):
+#v = max(v, value(successor))
+            v = max(v, self.valueOfState(gameState.generateSuccessor(agentIndex, actions), depth, agentIndex+1))
         return v
 
 
@@ -409,15 +408,19 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 
     def expV(self, gameState, depth, agentIndex):
+#initialize v = 0
         v = 0
         actions = gameState.getLegalActions(agentIndex)
         if len(actions) == 0:
             return self.evaluationFunction(gameState)
-        for action in gameState.getLegalActions(agentIndex):
+#for each successor of state:
+        for actions in gameState.getLegalActions(agentIndex):
+#assumed equal probaility, had no errors
+#small change in the fact that i had to compensate for the multikple ghosts
             if agentIndex +1 == gameState.getNumAgents():
-                v += self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth-1, 0)
+                v += self.valueOfState(gameState.generateSuccessor(agentIndex, actions), depth-1, 0)
             else:
-                v += self.valueOfState(gameState.generateSuccessor(agentIndex, action), depth, agentIndex+1)
+                v += self.valueOfState(gameState.generateSuccessor(agentIndex, actions), depth, agentIndex+1)
         return v 
 
 
