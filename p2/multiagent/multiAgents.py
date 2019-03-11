@@ -75,18 +75,18 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        foodCost = 6969696969696969
+        foodCost = math.inf
         foodList = currentGameState.getFood().asList()
         pacmanState = successorGameState.getPacmanPosition()
 
         for ghostState in newGhostStates:
             if ghostState.getPosition() == pacmanState:
-                return -696969696969
+                return -math.inf
         for food in foodList:
             currCost = abs(food[0] - pacmanState[0])+abs(food[1] - pacmanState[1])
             if currCost < foodCost:foodCost = currCost
 
-        return -foodCost
+        return foodCost
         return successorGameState.getScore()
 
 
@@ -250,49 +250,62 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 #if its pacman playing (max)
         if agentIndex == 0:
+#check all actions
             for i in range(len(actions)):
                 score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, 1, a, b)[0]
-                
-                if score > maxValue:
+#v = max(v,value(successor,a,b))
+#altered to include the move, this is needed in this variety of a-b pruning
+                if max(score,maxValue) == score:
                     maxValue = score
                     move = actions[i]
-                elif score == maxValue:
-                    move = actions[i]
-                if maxValue > b: break
-                a = max(a, score)
+#if v > b return v
+                if maxValue > b: 
+                    return maxValue, move
+                a = max(a, maxValue)
             return maxValue, move
+
+#if its a ghost (min)
         else:
-            if agentIndex +1  == gameState.getNumAgents(): # last ghost
+#checks if the current agent is the same as the total amount of agents
+#this would mean that all of the ghosts have been accounted for
+#THE TOTAL COUNT IS LENGTH NOT INCLUDING 0
+            if agentIndex+1  == gameState.getNumAgents():
+#check all actions
                 for i in range(len(actions)):
+#v = min(v,value(successor,a,b))
+#altered to include the move, this is needed in this variety of a-b pruning
                     score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth - 1, 0, a, b)[0]
-                    
-                    if score < minValue:
+                    if min(score,minValue) == score:
                         minValue = score
                         move = actions[i]
-                    elif score == minValue:
-                        move = actions[i]
-                    if a > minValue: break
-                    b = min(b, score)
+#if v < a return v
+                    if a > minValue: 
+                        return minValue, move
+                    b = min(b, minValue)
             else:
+#check all actions
                 for i in range(len(actions)):
+#v = min(v,value(successor,a,b))
+#altered to include the move, this is needed in this variety of a-b pruning
                     score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, agentIndex + 1, a, b)[0]
-                    b = min(b, score)
-                    if score < minValue:
+                    if min(score,minValue) == score:
                         minValue = score
                         move = actions[i]
-                    elif score == minValue:
-                        move = actions[i]
-                    if a > minValue: break
-                    b = min(b, score)
+#if v < a return v
+                    if a > minValue: 
+                        return minValue, move
+                    b = min(b, minValue)
             return minValue, move
+
+            
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        return self.minimax(gameState, self.depth,0, -math.inf, math.inf)[1]
-
+        costPath =  self.minimax(gameState, self.depth,0, -math.inf, math.inf)
+        return costPath[1]
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
