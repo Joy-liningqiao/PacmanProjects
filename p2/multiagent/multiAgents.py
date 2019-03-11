@@ -235,12 +235,64 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    def minimax(self, gameState, depth, agentIndex, a, b):
+        actions = gameState.getLegalActions(agentIndex)
+        #setting variables for the max value, min value, and the moves 
+        #just initilized to baiscally dummy values
+        minValue = math.inf
+        maxValue = -math.inf
+        move = None
+#if depth = 0 or node is a terminal node then
+        if depth == 0 or gameState.isWin() or gameState.isLose():
+#return the heuristic value of node
+            return self.evaluationFunction(gameState), Directions.STOP
+
+
+#if its pacman playing (max)
+        if agentIndex == 0:
+            for i in range(len(actions)):
+                score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, 1, a, b)[0]
+                
+                if score > maxValue:
+                    maxValue = score
+                    move = actions[i]
+                elif score == maxValue:
+                    move = actions[i]
+                if maxValue > b: break
+                a = max(a, score)
+            return maxValue, move
+        else:
+            if agentIndex +1  == gameState.getNumAgents(): # last ghost
+                for i in range(len(actions)):
+                    score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth - 1, 0, a, b)[0]
+                    
+                    if score < minValue:
+                        minValue = score
+                        move = actions[i]
+                    elif score == minValue:
+                        move = actions[i]
+                    if a > minValue: break
+                    b = min(b, score)
+            else:
+                for i in range(len(actions)):
+                    score = self.minimax(gameState.generateSuccessor(agentIndex, actions[i]), depth, agentIndex + 1, a, b)[0]
+                    b = min(b, score)
+                    if score < minValue:
+                        minValue = score
+                        move = actions[i]
+                    elif score == minValue:
+                        move = actions[i]
+                    if a > minValue: break
+                    b = min(b, score)
+            return minValue, move
 
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        return self.minimax(gameState, self.depth,0, -math.inf, math.inf)[1]
+
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
