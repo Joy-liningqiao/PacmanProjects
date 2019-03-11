@@ -88,8 +88,7 @@ class ReflexAgent(Agent):
                 foodCost = currCost
 
         return -foodCost
-        #return successorGameState.getScore()
-
+        return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -151,32 +150,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         '''
-PSEUDOCODE
-Source: https://en.wikipedia.org/wiki/Minimax
+    PSEUDOCODE
+    Source: https://en.wikipedia.org/wiki/Minimax
 
-function minimax(node, depth, maximizingPlayer) is
-    if depth = 0 or node is a terminal node then
-        return the heuristic value of node
-    if maximizingPlayer then
-        value := −∞
-        for each child of node do
-            value := max(value, minimax(child, depth − 1, FALSE))
-        return value
-    else (* minimizing player *)
-        value := +∞
-        for each child of node do
-            value := min(value, minimax(child, depth − 1, TRUE))
-        return value
+    function minimax(node, depth, maximizingPlayer) is
+        if depth = 0 or node is a terminal node then
+            return the heuristic value of node
+        if maximizingPlayer then
+            value := −∞
+            for each child of node do
+                value := max(value, minimax(child, depth − 1, FALSE))
+            return value
+        else (* minimizing player *)
+            value := +∞
+            for each child of node do
+                value := min(value, minimax(child, depth − 1, TRUE))
+            return value
 
-(* Initial call *)
-minimax(origin, depth, TRUE)
+    (* Initial call *)
+    minimax(origin, depth, TRUE)
 '''
         costPath =  self.minimax(gameState, self.depth)
         #print(s)
         return costPath[1]
         util.raiseNotDefined()
-
-
 
 #useign agentIndex int instead of boolean because more then 2 agents
     def minimax(self, gameState, depth, agentIndex = 0):
@@ -230,7 +227,6 @@ minimax(origin, depth, TRUE)
                         move = actions[i]
 #return value and move
                 return (minValue, move)
-
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -324,14 +320,13 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     b = min(b, minValue)
             return minValue, move
 
-            
-
     def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        costPath =  self.minimax(gameState, self.depth,0, -math.inf, math.inf)
+        costPath =  self.minimax(gameState, self.depth,0,-math.inf, math.inf)
+        #print(s)
         return costPath[1]
         util.raiseNotDefined()
 
@@ -423,8 +418,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 v += self.valueOfState(gameState.generateSuccessor(agentIndex, actions), depth, agentIndex+1)
         return v 
 
-
-
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -433,6 +426,8 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+
+    
     util.raiseNotDefined()
 
 # Abbreviation
