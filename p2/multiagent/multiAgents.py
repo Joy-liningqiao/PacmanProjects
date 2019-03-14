@@ -75,20 +75,24 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        foodCost = math.inf
-        foodList = currentGameState.getFood().asList()
-        pacmanState = successorGameState.getPacmanPosition()
 
+        
+        
+#get all chost options
         for ghostState in newGhostStates:
-            if ghostState.getPosition() == pacmanState:
+#if ghost is same place as the new spot, then return -inf
+            if ghostState.getPosition() == newPos:
                 return -math.inf
-        for food in foodList:
-            currCost = abs(food[0] - pacmanState[0])+abs(food[1] - pacmanState[1])
-            if currCost < foodCost:
-                foodCost = currCost
-
-        return -foodCost
-        return successorGameState.getScore()
+#initilize the return variable of cost
+        distanceValue = -math.inf
+#loop through all the food
+        for food in currentGameState.getFood().asList():
+#calculate the distance
+            currCost = -(abs(food[0] - newPos[0])+abs(food[1] - newPos[1]))
+            if currCost > distanceValue:
+                distanceValue = currCost
+#return the distance value, higher is the best
+        return distanceValue
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -253,7 +257,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             if α ≥ β then
                 break (* α cut-off *)
         return value
-        (* Initial call *)
+    (* Initial call *)
     alphabeta(origin, depth, −∞, +∞, TRUE)
     '''
 
@@ -366,11 +370,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         '''
         "*** YOUR CODE HERE ***"
         maxValue = -math.inf
+#This is needed for Q5
+        move = Directions.STOP
 #iterate thoguh all moves and find most valuable
         for actions in gameState.getLegalActions(0):
             score = self.valueOfState(gameState.generateSuccessor(0, actions),self.depth,1)
             if score > maxValue:
-                maxValue ,move = score,actions
+                maxValue , move = score,actions
         return move
 
     def valueOfState(self, gameState, depth, agentIndex):
@@ -424,11 +430,59 @@ def betterEvaluationFunction(currentGameState):
     evaluation function (question 5).
 
     DESCRIPTION: <write something here so we know what you did>
+    I generally used the code from the first problem and the same general idea of looping thoug hthe food
+    However in this situation, all of the food was acknowledged,
+    I also acknowledged the ghosts and their posistions
+    #the hardest part of this was platying arounf with the values in order to acheive the highest possible score at the end.
     """
     "*** YOUR CODE HERE ***"
+#all stuff from the first problem
+    successorGameState = currentGameState
+    newPos = successorGameState.getPacmanPosition()
+    newFood = successorGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+#new stuff to find the locations of the food as a list
+#and all of the posistions of the ghosts
+    newFoodAsList = newFood.asList()
+    currentGhostLocations = currentGameState.getGhostPositions()
+#setting the value to the amount fo food left
+#this needs to be negative cause it deosent work as well without
+#value needs to be -1 or <-200 to get the 1137.9 score
+    hurValue =  -1*currentGameState.getNumFood()
+#basic checks to see if the game is in a terminal state
+    if currentGameState.isLose(): 
+        return -math.inf
+    if currentGameState.isWin():
+        return math.inf
+#if not terminal then check the actual calcualations
+#go through the entire food list 
+    for i in range(len(newFoodAsList)):
+#do a manhatten distance
+        foodDist = util.manhattanDistance(newPos, newFoodAsList[i])
+#if its 0 then go there, thats the food
+        if foodDist == 0:
+            return math.inf
+#else do the calculation i made
+#the exponential makesthe value less than one to keep it conistent
+        hurValue += -1 * (1 - (10 **(-.1 * foodDist)))
 
-    
-    util.raiseNotDefined()
+#loop through all of the current ghosts
+    for i in range(len(currentGhostLocations)):
+#do a manhatten distance
+        dist = util.manhattanDistance(newPos, currentGhostLocations[i])
+#if distance to ghost is 1 then definitly break
+        if dist == 1:
+            return -math.inf
+#this doesent have a 1- in it cause that makes the avg score 1126.1
+#else do the calculation i made
+#the exponential makesthe value less than one to keep it conistent
+        hurValue += -1 * ((math.e **(-.1 *dist)))
+
+
+    #print(score)
+
+    return hurValue
 
 # Abbreviation
 better = betterEvaluationFunction
