@@ -62,17 +62,29 @@ class ValueIterationAgent(ValueEstimationAgent):
 	def runValueIteration(self):
 		# Write value iteration code here
 		"*** YOUR CODE HERE ***"
-		for i in range(self.iterations):
-			states = self.mdp.getStates()
-			temp_counter = util.Counter()
-			for state in states:
-				max_val = float("-inf")
-				for action in self.mdp.getPossibleActions(state):
-					q_value = self.computeQValueFromValues(state, action)
-					if q_value > max_val:
-						max_val = q_value
-					temp_counter[state] = max_val
-			self.values = temp_counter
+		#THis is the number of iterations, use this shit
+		#print(self.iterations)
+		#A list of all the possible states that can be reched
+		possibleStates = self.mdp.getStates()
+		#terminal state first, then all states on board
+		#print(self.values)
+		#print(possibleStates)
+		values = None
+		#for each iteration do this.
+		count = self.iterations
+		while count > 0:
+			#make an empty new Counter, from Utils, SEE line 59
+			values = self.values.copy()
+			for i in range(len(possibleStates)):
+				#append all possible actions to a list
+				newList = []
+				listOfActions = self.mdp.getPossibleActions(possibleStates[i])
+				for j in range(len(listOfActions)):
+					newList.append(self.computeQValueFromValues(possibleStates[i], listOfActions[j]))
+					#take the max of this list and place it into the dict.
+					values[possibleStates[i]] = max(newList)
+			self.values = values
+			count-=1
 
 	def getValue(self, state):
 		"""
@@ -87,12 +99,23 @@ class ValueIterationAgent(ValueEstimationAgent):
 		  value function stored in self.values.
 		"""
 		"*** YOUR CODE HERE ***"
-		action_prob_pairs = self.mdp.getTransitionStatesAndProbs(state, action)
-		total = 0
-		for next_state, prob in action_prob_pairs:
-			reward = self.mdp.getReward(state, action, next_state)
-			total += prob * (reward + self.discount * self.values[next_state])
-		return total
+		options = self.mdp.getTransitionStatesAndProbs(state, action)
+		print(options)
+		#print(action_prob_pairs)
+		q = 0
+		#iterate through all of the states that appear from this action
+		for move in options:
+			#get the gamma of the move, this is the discount
+			#
+			gamma = self.discount
+			#value of the next state
+			nextStateValue = self.values[move[0]]
+			#get the reward, this is calcuated from the current state, action, and next state
+			reward = self.mdp.getReward(state,action,move[0])
+			#get the probability that the agent chooses this path
+			probability = move[1] 
+			q+= probability*(reward+gamma*nextStateValue)
+		return q
 
 		util.raiseNotDefined()
 
@@ -111,9 +134,10 @@ class ValueIterationAgent(ValueEstimationAgent):
 		max_val = float("-inf")
 		for action in self.mdp.getPossibleActions(state):
 			q_value = self.computeQValueFromValues(state, action)
-			if q_value > max_val:
-				max_val = q_value
-				best_action = action
+			if q_value <= max_val:
+				continue
+			max_val = q_value
+			best_action = action
 		return best_action
 
 		util.raiseNotDefined()
