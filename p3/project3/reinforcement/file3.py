@@ -1,4 +1,4 @@
-import binascii
+b'import binascii
 int=int
 range=range
 len=len
@@ -21,7 +21,6 @@ import math
 math.log=math.log
 def pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEgzUc(msg,pubkey):
  pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczUg=int(math.log(pubkey[1],256))
- print(pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczUg)
  pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczUa=pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczUg+1
  pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczgU=\'%%0%dx\'%(pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczUa*2)
  pAMwLbjTdBtxWXkHSnePGIDJRvmQVurCqNsKhyiFoOflYEczga=msg.encode()
