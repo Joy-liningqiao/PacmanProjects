@@ -72,7 +72,7 @@ class ValueIterationAgent(ValueEstimationAgent):
 		values = None
 		#for each iteration do this.
 		count = self.iterations
-		while count > 0:
+		for i in range(self.iterations):
 			#make an empty new Counter, from Utils, SEE line 59
 			values = self.values.copy()
 			for i in range(len(possibleStates)):
@@ -84,7 +84,6 @@ class ValueIterationAgent(ValueEstimationAgent):
 					#take the max of this list and place it into the dict.
 					values[possibleStates[i]] = max(newList)
 			self.values = values
-			count-=1
 
 	def getValue(self, state):
 		"""
@@ -99,12 +98,13 @@ class ValueIterationAgent(ValueEstimationAgent):
 		  value function stored in self.values.
 		"""
 		"*** YOUR CODE HERE ***"
+		return sum([move[1]*(self.mdp.getReward(state,action,move[0])+self.discount*self.values[move[0]]) for move in  self.mdp.getTransitionStatesAndProbs(state, action)])
+
+
+		#same as for loop below, but mostly so i can test my pythonic ways
 		#options = self.mdp.getTransitionStatesAndProbs(state, action)
 		#print(options)
 		#print(action_prob_pairs)
-		#same as for loop below, but mostly so i can test my pythonic ways
-		return sum([move[1]*(self.mdp.getReward(state,action,move[0])+self.discount*self.values[move[0]]) for move in  self.mdp.getTransitionStatesAndProbs(state, action)])
-
 		#iterate through all of the states that appear from this action
 		'''for move in options:
 			#get the gamma of the move, this is the discount
@@ -205,7 +205,7 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 			else:
 				#basiclly the same as q1 computeActionFromValues and computeQValueFromValues
 				for action in self.mdp.getPossibleActions(currentState):
-
+					'''
 					options = self.mdp.getTransitionStatesAndProbs(currentState, action)
 					#print(options)
 					#print(action_prob_pairs)
@@ -221,7 +221,8 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 						reward = self.mdp.getReward(currentState,action,move[0])
 						#get the probability that the agent chooses this path
 						probability = move[1] 
-						q+= probability*(reward+gamma*nextStateValue)
+						q+= probability*(reward+gamma*nextStateValue)'''
+					q = sum([move[1]*(self.mdp.getReward(currentState,action,move[0])+self.discount*self.values[move[0]]) for move in  self.mdp.getTransitionStatesAndProbs(currentState, action)])
 					if q > value:
 						value = q
 				#set the value to the greatest
