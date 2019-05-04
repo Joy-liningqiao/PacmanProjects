@@ -168,14 +168,15 @@ class DigitClassificationModel(object):
 		# Initialize your model parameters here
 		"*** YOUR CODE HERE ***"
 		#adding my parameters, this is a two-layer nn
-		self.m1 = nn.Parameter(1, 1000)
+		#784/100 is what it keeps asking for
+		self.m1 = nn.Parameter(784, 100)
 		#bias 1 same size as m1
-		self.bias1 = nn.Parameter(1, 1000)
+		self.bias1 = nn.Parameter(1, 100)
 		#size inverse to m1
-		self.m2 = nn.Parameter(1000, 1)
+		self.m2 = nn.Parameter(100, 10)
 		#bias2
 		#needs to be 1x1
-		self.bias2 = nn.Parameter(1, 1)
+		self.bias2 = nn.Parameter(1, 10)
 
 		'''
 		self.w0 = nn.Parameter(784, 100)
@@ -211,10 +212,6 @@ class DigitClassificationModel(object):
 		#rectified one doesent work
 		return layer2WithBias
 
-		xw1 = nn.Linear(x, self.w0)
-		r1 = nn.ReLU(nn.AddBias(xw1, self.b0))
-		xw2 = nn.Linear(r1, self.w1)
-		return nn.AddBias(xw2, self.b1)
 
 	def get_loss(self, x, y):
 		"""
@@ -238,7 +235,7 @@ class DigitClassificationModel(object):
 		Trains the model.
 		"""
 		"*** YOUR CODE HERE ***"
-		loss = 1
+		loss = 0
 		while loss < .97:
 			fullLoss = 0
 			count = 0
@@ -259,28 +256,10 @@ class DigitClassificationModel(object):
 				self.m2.update(gm2, multiplier)
 				self.bias1.update(gb1, multiplier)
 				self.bias2.update(gb2, multiplier)
-			loss = fullLoss/count
-			print(fullLoss/count)
 
+			loss = dataset.get_validation_accuracy()
+			print(loss)
 
-
-		while True:
-
-			#print(nn.Constant(dataset.x), nn.Constant(dataset.y))
-
-			for x, y in dataset.iterate_once(1):
-				loss = self.get_loss(x,y)
-				grad = nn.gradients(loss, [self.w0, self.w1, self.b0, self.b1])
-
-				#print(nn.as_scalar(nn.DotProduct(grad[0],grad[0])))
-				self.w0.update(grad[0], -0.005)
-				self.w1.update(grad[1], -0.005)
-				self.b0.update(grad[2], -0.005)
-				self.b1.update(grad[3], -0.005)
-
-			print(dataset.get_validation_accuracy())
-			if dataset.get_validation_accuracy() >= 0.97:
-				return
 
 class LanguageIDModel(object):
 	"""
